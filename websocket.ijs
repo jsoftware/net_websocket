@@ -114,6 +114,8 @@ sdclose SK
 log 'end';''
 2!:55''
 )
+
+shutdown=: endserver
 init=: 3 : 0
 'Port JFE'=: 2{.y,0
 loginit''
@@ -130,7 +132,6 @@ initrun''
 initrun=: 3 : 0
 Waits=: (SK,sockets);'';''
 loop=: 1
-shutdownflag=: 0
 while. loop do.
   r=. runcheck sdselect Waits,<WaitTimeout
   remwait r
@@ -139,7 +140,6 @@ while. loop do.
   for_x. s do. runbase__x r end.
   if. JFEconnect do. EMPTY return. end.
 end.
-if. shutdownflag do. endserver'' end.
 smoutput 'server halted - restart by running: restart'''''
 )
 interrupt=: 3 : 0
@@ -558,7 +558,7 @@ assert '48c98f7e5a6e736d790ab740dfc3f51a61abe2b5' -: sha1sum 'Rosetta Code'
 ws_onmessage=: 3 : 0
 logcmd y
 if. encoding=1 do.
-  ws_exec__=. ".
+  ws_exec_z_=. ".
   try.
     t=. 6!:1''
     r=. ws_exec__ y

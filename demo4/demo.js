@@ -82,6 +82,7 @@ function resizer() {
  var c = getid("cube");
  var cw = c.clientWidth;
  var ch = c.clientHeight;
+// cw padding depends on browser, e.g. 16 for firefox
  t.style.width = Math.min(cw + 12,w-120) + "px";
  t.style.height = Math.min(ch + 12,h - b - 90) + "px";
 }
@@ -100,7 +101,7 @@ window.onload = function() {
 
 "use strict";
 
-var drags=" draggable='true' ondragstart='drag(event)'";
+var drags=" draggable='true' ondragstart='dragstart(event)'";
 var drops=" ondrop='drop(event)' ondragend='dragend(event)' ondragover='dragover(event)'";
 
 // ----------------------------------------------------------------------
@@ -186,7 +187,7 @@ function slices() {
 // drag
 
 // ----------------------------------------------------------------------
-function drag(e) {
+function dragstart(e) {
  var d = e.target.id + " " + e.x + " " + e.y;
  e.dataTransfer.setData("text", d);
  showtarget(true);

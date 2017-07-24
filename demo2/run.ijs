@@ -4,14 +4,10 @@ NB. =========================================================
 NB. format table from dbread as html
 tab2html=: 3 : 0
 'cls dat'=. y
-msk=. (<:+:#cls) $1 0
-cls=. msk expand cls
-dat=. msk expand dat
-rws=. #0 pick dat
-dat=. (<rws#a:) (I. msk=0)} dat
 th=. '<th>' , ,&'</th>'
 tr=. '<tr>' , ,&'</tr>'
 hdr=. tr ; th each cls
+rws=. #0 pick dat
 td0=. rws $ '<td>';'<td class="alt">'
 td1=. '</td>'
 td=. td0 (,td1,~":) each ]
@@ -46,6 +42,13 @@ s=. (,' - ' , ' records' ,~ ":@dbsize) each t
 p=. ('<b>',,&'</b>') each s
 r=. tab2html@dbread each t ,each <' limit 5'
 ; (p ,each r) ,each LF
+)
+
+NB. =========================================================
+NB. for development
+reloadJ_z_=: 3 : 0
+dat=. freads '~addons/net/websocket/demo4/run.ijs'
+0!:100 dat {.~ ('load ''net/websocket''' E. dat) i: 1
 )
 
 load 'data/sqlite/sqlitez'

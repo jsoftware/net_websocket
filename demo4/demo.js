@@ -76,15 +76,19 @@ function showtable() {
 function resizer() {
  var t = getid("cubetab");
  if (!t) return;
- var b = getid("top").getBoundingClientRect().bottom;
- var w = window.innerWidth;
- var h = window.innerHeight;
+ var b = t.getBoundingClientRect().top;
+ var w = window.innerWidth - 120;
+ var h = window.innerHeight - b - 50;
  var c = getid("cube");
- var cw = c.clientWidth;
- var ch = c.clientHeight;
-// cw padding depends on browser, e.g. 16 for firefox
- t.style.width = Math.min(cw + 12,w-120) + "px";
- t.style.height = Math.min(ch + 12,h - b - 90) + "px";
+ var cw = c.offsetWidth;
+ var ch = c.offsetHeight;
+ var sb = 20;
+ var sv = (h < ch) ? 2 : (h < ch + sb) ? 1 : 0;
+ var sh = (w < cw) ? 2 : (w < cw + sb) ? 1 : 0;
+ if (sv === 1 && sh === 1)
+  sv = sh = 2;
+ t.style.width = (sh === 2) ? w + "px" : "";
+ t.style.height = (sv === 2) ? h + "px" : "";
 }
 
 // ----------------------------------------------------------------------

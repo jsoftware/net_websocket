@@ -88,6 +88,7 @@ SK=: SC=: 0
 
 JFEconnect=: 0
 Protocols=: ;: 'binary'
+RestartMsg=: 'server halted - restart by running: restart'''''
 accept=: 3 : 0
 addwait SK;'';''
 'rc sc'=. sdaccept SK
@@ -140,12 +141,12 @@ while. loop do.
   for_x. s do. runbase__x r end.
   if. JFEconnect do. EMPTY return. end.
 end.
-smoutput 'server halted - restart by running: restart'''''
+smoutput RestartMsg
 )
 interrupt=: 3 : 0
 if. JFE do.
   jfe 0
-  smoutput 'server halted - restart by running: restart'''''
+  smoutput RestartMsg
 else.
   0$loop=: 0
 end.

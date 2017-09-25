@@ -145,7 +145,7 @@ smoutput RestartMsg
 )
 interrupt=: 3 : 0
 if. JFE do.
-  jfe 0
+  stopjfe''
   smoutput RestartMsg
 else.
   0$loop=: 0
@@ -162,12 +162,19 @@ remwait=: 3 : 0
 Waits_jws_=: Waits -. each y
 )
 restart=: 3 : 0
-if. JFE do.
-  jfe 1
-else.
-  initrun''
+if. -. restartjfe'' do.
+  startbase''
 end.
 EMPTY
+)
+restartjfe=: 3 : 0
+if. -. JFE do. 0 return. end.
+if. 0 = #sockets do. 0 return. end.
+sk=. {. sockets
+if. 0 ~: 0 pick sdgetsockopt sk;SOL_SOCKET;SO_ERROR do. 0 return. end.
+lc=. {. servers
+initjfe__lc''
+1
 )
 
 restart_z_=: restart_jws_
@@ -190,6 +197,14 @@ if. 'ENOTSOCK' -: sderror rc do.
   end.
 end.
 res
+)
+startbase=: 3 : 0
+setimmex 'initrun_jws_ 0'
+)
+stopjfe=: 3 : 0
+input_jfe_=: output_jfe_=: empty
+jfe 0
+JFEconnect_jws_=: 0
 )
 SNDLIM=: 65000
 HSRESPONSE=: ' ' ,~ }: 0 : 0
@@ -252,9 +267,8 @@ end.
 )
 destroy=: 3 : 0
 if. JFE do.
-  jfe 0
-  JFEconnect_jws_=: 0
-  setimmex 'initrun_jws_ 0'
+  stopjfe''
+  startbase''
 end.
 sdclose SC
 removeserver coname''
@@ -296,7 +310,7 @@ s=. > coname''
 input_jfe_=: ('input_',s,'_')~
 output_jfe_=: ('output_',s,'_')~
 JFEconnect_jws_=: 1
-setimmex 'restart 0'
+setimmex 'jfe_jws_ 1'
 )
 makeframe=: 4 : 0
 'f t'=. x
@@ -422,6 +436,7 @@ if. #senddata do.
 else.
   ws_send''
 end.
+EMPTY
 )
 ws_send=: 3 : 0
 if. #y do.
@@ -439,31 +454,47 @@ end.
 writesock''
 )
 inputj=: 0
+inputbuf=: ''
 input=: 3 : 0
 inputj=: 1
-logged=: 0
-ws_send '0',y
-clearread''
-while. -. Destroy do.
-  addwait SC;'';''
-  if. wsselect'' do. continue. end.
-  if. -. readcheck'' do. continue. end.
-  if. dataopn > 2 do. readbasex dataopn;readdata continue. end.
-  break.
-end.
-if. Destroy do.
+if. 0=#inputbuf do.
+  logged=: 0
+  ws_send '0',y
   clearread''
-  dbg 0
-  destroy'' return.
+  while. -. Destroy do.
+    addwait SC;'';''
+    if. wsselect'' do. continue. end.
+    if. -. readcheck'' do. continue. end.
+    if. dataopn > 2 do. readbasex dataopn;readdata continue. end.
+    break.
+  end.
+  if. Destroy do.
+    clearread''
+    dbg 0
+    destroy'' return.
+  end.
+  if. LF e. readdata do. inputbuf=: <;._2 readdata,LF end.
+end.
+if. #inputbuf do.
+  readdata=: 0 pick inputbuf
+  inputbuf=: }. inputbuf
 end.
 logcmd readdata
 readdata
 )
 output=: 4 : 0
 if. JFEconnect *. inputj *. x ~: 3 do.
+  if. x e. 2 4 do.
+    inputbuf=: ''
+    y=. remoutputjrx y
+  end.
   logres (":x),y
   ws_send (":x),y
 end.
+EMPTY
+)
+remoutputjrx=: 3 : 0
+y rplc ' output_jrx_=:';''
 )
 wsselect=: 3 : 0
 r=. runcheck sdselect Waits,<WaitTimeout

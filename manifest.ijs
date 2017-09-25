@@ -1,4 +1,4 @@
-NB. publish manifest
+NB. websocket manifest
 
 CAPTION=: 'Websocket server'
 

@@ -455,6 +455,7 @@ writesock''
 )
 inputj=: 0
 inputbuf=: ''
+cleanerror=: ]
 input=: 3 : 0
 inputj=: 1
 if. 0=#inputbuf do.
@@ -486,15 +487,12 @@ output=: 4 : 0
 if. JFEconnect *. inputj *. x ~: 3 do.
   if. x e. 2 4 do.
     inputbuf=: ''
-    y=. remoutputjrx y
+    y=. cleanerror y
   end.
   logres (":x),y
   ws_send (":x),y
 end.
 EMPTY
-)
-remoutputjrx=: 3 : 0
-y rplc ' output_jrx_=:';''
 )
 wsselect=: 3 : 0
 r=. runcheck sdselect Waits,<WaitTimeout

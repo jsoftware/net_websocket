@@ -5,8 +5,9 @@ coinsert 'jsocket'
 
 LogDir=: jpath '~temp/logs'
 LogLen=: 3
-ExitTimeout=: 0
 WaitTimeout=: 5000
+InitTimeout=: 0
+IdleTimeout=: 0
 binchar=: (8$2)#:a.&i.
 charbin=: a. {~ #.
 jfe=: 0 0$15!:16
@@ -134,19 +135,18 @@ initrun''
 )
 initrun=: 3 : 0
 Waits=: (SK,sockets);'';''
-xtimeout=. ExitTimeout * 0=#sockets
-xtime=. 0
+inito=. InitTimeout * 0=#sockets
+wtime=. 0
 loop=: 1
 while. loop do.
   r=. runcheck sdselect Waits,<WaitTimeout
   if. 0=#;r do.
-    if. xtimeout do.
-      xtime=. xtime + WaitTimeout
-      if. xtime >: xtimeout do. exit 0 return. end.
-    end.
+    wtime=. wtime + WaitTimeout
+    if. (0 < inito) *. wtime >: inito do. exit 0 return. end.
+    if. (0 < IdleTimeout) *. wtime >: IdleTimeout do. exit 0 return. end.
     continue.
   end.
-  xtimeout=. 0
+  wtime=. inito=. 0
   remwait r
   if. SK e. 0 pick r do. accept'' end.
   s=. (sockets e. ~.;r)#servers
@@ -474,10 +474,15 @@ if. 0=#inputbuf do.
   logged=: 0
   ws_send '0',y
   clearread''
+  wtime=. 0
   while. -. Destroy do.
     addwait SC;'';''
-    if. wsselect'' do. continue. end.
-    if. -. readcheck'' do. continue. end.
+    if. wsselect'' do. wtime=. 0 continue. end.
+    if. -. readcheck'' do.
+      wtime=. wtime + WaitTimeout
+      if. (0 < IdleTimeout) *. wtime >: IdleTimeout do. Destroy=: 1 end. continue.
+    end.
+    wtime=. 0
     if. dataopn > 2 do. readbasex dataopn;readdata continue. end.
     break.
   end.

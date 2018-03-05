@@ -7,7 +7,8 @@ LogDir=: jpath '~temp/logs'
 LogLen=: 3
 WaitTimeout=: 5000
 InitTimeout=: 0
-IdleTimeout=: 0
+IdleTimeout=: 600000
+IdleTimeout=: 30000
 binchar=: (8$2)#:a.&i.
 charbin=: a. {~ #.
 jfe=: 0 0$15!:16
@@ -25,6 +26,11 @@ y=. ucp y
 a=. ucp '┌┬┐├┼┤└┴┘│─'
 x=. I. y e. b
 utf8 (a {~ b i. x { y) x } y
+)
+checkidletimes=: 3 : 0
+for_loc. sockets intersect conl 1 do.
+  checklastuse__loc''
+end.
 )
 cutval=: 3 : 0
 deb each <;._1 ',',tolower y
@@ -71,11 +77,6 @@ else.
 end.
 if. MaxRep<#r do.
   (MaxRep{.r),'..'
-end.
-)
-systimex=: 3 : 0
-for_loc. sockets intersect conl 1 do.
-  checklastuse__loc''
 end.
 )
 tobase64=: 3 : 0
@@ -143,7 +144,7 @@ while. loop do.
   if. 0=#;r do.
     wtime=. wtime + WaitTimeout
     if. (0 < inito) *. wtime >: inito do. exit 0 return. end.
-    if. (0 < IdleTimeout) *. wtime >: IdleTimeout do. exit 0 return. end.
+    checkidletimes''
     continue.
   end.
   wtime=. inito=. 0
@@ -232,10 +233,9 @@ b=. b,'<body><h1>Bad Request</h1>',CRLF,'<p>',y,'</p></body></html>',CRLF
 r=. 'HTTP/1.1 400 Bad Request',CRLF,'Content-length: ',":#b
 r,CRLF,'Connection: Closed',CRLF,CRLF,b
 )
-SessionTimeout=: 600
 checklastuse=: 3 : 0
-if. SessionTimeout < (6!:1'') - lastuse do.
-  disconnect''
+if. IdleTimout do.
+  if. IdleTimeout < 1000 * (6!:1'') - lastuse do. disconnect'' end.
 end.
 )
 clearbuffers=: 3 : 0
@@ -480,7 +480,7 @@ if. 0=#inputbuf do.
     if. wsselect'' do. wtime=. 0 continue. end.
     if. -. readcheck'' do.
       wtime=. wtime + WaitTimeout
-      if. (0 < IdleTimeout) *. wtime >: IdleTimeout do. Destroy=: 1 end. continue.
+      if. (0 < IdleTimeout) *. wtime >: IdleTimeout do. exit 0 end. continue.
     end.
     wtime=. 0
     if. dataopn > 2 do. readbasex dataopn;readdata continue. end.

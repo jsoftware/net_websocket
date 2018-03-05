@@ -6,7 +6,7 @@ DESCRIPTION=: 0 : 0
 This is websocket server which allows a web browser to make calls to J.
 )
 
-VERSION=: '1.0.7'
+VERSION=: '1.0.6'
 
 RELEASE=: 'j806 j807'
 

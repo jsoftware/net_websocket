@@ -8,7 +8,7 @@ This is websocket server which allows a web browser to make calls to J.
 
 VERSION=: '1.0.6'
 
-RELEASE=: 'j806 j807'
+RELEASE=: 'j804 j805 j806 j807'
 
 FILES=: 0 : 0
 client.ijs

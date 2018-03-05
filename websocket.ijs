@@ -143,8 +143,8 @@ while. loop do.
     if. xtimeout do.
       xtime=. xtime + WaitTimeout
       if. xtime >: xtimeout do. exit 0 return. end.
-      continue.
     end.
+    continue.
   end.
   xtimeout=. 0
   remwait r

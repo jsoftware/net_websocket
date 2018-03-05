@@ -140,7 +140,7 @@ loop=: 1
 while. loop do.
   r=. runcheck sdselect Waits,<WaitTimeout
   if. 0=#;r do.
-    if. #xtimeout do.
+    if. xtimeout do.
       xtime=. xtime + WaitTimeout
       if. xtime >: xtimeout do. exit 0 return. end.
       continue.

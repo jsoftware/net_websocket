@@ -6,11 +6,15 @@ coinsert 'jsocket'
 LogDir=: jpath '~temp/logs'
 LogLen=: 3
 WaitTimeout=: 5000
+InitTimeout=: 0
+IdleTimeout=: 600000
+IdleTimeout=: 30000
 binchar=: (8$2)#:a.&i.
 charbin=: a. {~ #.
 jfe=: 0 0$15!:16
 intersect=: e. # [
 remLF=: }.~ [: - LF = {:
+sha1sum=: 1 & (128!:6)
 
 BASE64=: (a.{~ ,(a.i.'Aa') +/i.26),'0123456789+/'
 MaxRep=: 100
@@ -22,6 +26,11 @@ y=. ucp y
 a=. ucp '┌┬┐├┼┤└┴┘│─'
 x=. I. y e. b
 utf8 (a {~ b i. x { y) x } y
+)
+checkidletimes=: 3 : 0
+for_loc. servers intersect conl 1 do.
+  checklastuse__loc''
+end.
 )
 cutval=: 3 : 0
 deb each <;._1 ',',tolower y
@@ -70,17 +79,12 @@ if. MaxRep<#r do.
   (MaxRep{.r),'..'
 end.
 )
-systimex=: 3 : 0
-for_loc. sockets intersect conl 1 do.
-  checklastuse__loc''
-end.
-)
 tobase64=: 3 : 0
 res=. BASE64 {~ #. _6 [\ , (8#2) #: a. i. y
 res, (0 2 1 i. 3 | # y) # '='
 )
 wsreset=: 3 : 0
-for_loc. sockets intersect conl 1 do.
+for_loc. servers intersect conl 1 do.
   destroy__loc''
 end.
 )
@@ -132,9 +136,18 @@ initrun''
 )
 initrun=: 3 : 0
 Waits=: (SK,sockets);'';''
+inito=. InitTimeout * 0=#sockets
+wtime=. 0
 loop=: 1
 while. loop do.
   r=. runcheck sdselect Waits,<WaitTimeout
+  if. 0=#;r do.
+    wtime=. wtime + WaitTimeout
+    if. (0 < inito) *. wtime >: inito do. exit 0 return. end.
+    checkidletimes''
+    continue.
+  end.
+  inito=. 0
   remwait r
   if. SK e. 0 pick r do. accept'' end.
   s=. (sockets e. ~.;r)#servers
@@ -220,10 +233,11 @@ b=. b,'<body><h1>Bad Request</h1>',CRLF,'<p>',y,'</p></body></html>',CRLF
 r=. 'HTTP/1.1 400 Bad Request',CRLF,'Content-length: ',":#b
 r,CRLF,'Connection: Closed',CRLF,CRLF,b
 )
-SessionTimeout=: 600
 checklastuse=: 3 : 0
-if. SessionTimeout < (6!:1'') - lastuse do.
-  disconnect''
+if. IdleTimeout do.
+  if. IdleTimeout < 1000 * (6!:1'') - lastuse do.
+    if. JFE do. Destroy=: 1 else. disconnect'' end.
+  end.
 end.
 )
 clearbuffers=: 3 : 0
@@ -268,7 +282,7 @@ end.
 destroy=: 3 : 0
 if. JFE do.
   stopjfe''
-  startbase''
+  exit 0
 end.
 sdclose SC
 removeserver coname''
@@ -464,15 +478,16 @@ if. 0=#inputbuf do.
   clearread''
   while. -. Destroy do.
     addwait SC;'';''
-    if. wsselect'' do. continue. end.
-    if. -. readcheck'' do. continue. end.
+    if. wsselect'' do. lastuse=: 6!:1'' continue. end.
+    if. -. readcheck'' do. checklastuse'' continue. end.
+    lastuse=: 6!:1''
     if. dataopn > 2 do. readbasex dataopn;readdata continue. end.
     break.
   end.
   if. Destroy do.
     clearread''
     dbg 0
-    destroy'' return.
+    disconnect'' return.
   end.
   if. LF e. readdata do. inputbuf=: <;._2 readdata,LF end.
 end.
@@ -549,42 +564,6 @@ loguse=: 3 : 0
 log 'use';": (<. 0.5 + 1000 * t),#r
 r
 )
-sha1sum=: 3 : 0
-b=. ,(8#2) #: a.i.y
-p=. b,1,((512|-65+#b)#0),(64#2)#:#b
-h=. #: 16b67452301 16befcdab89 16b98badcfe 16b10325476 16bc3d2e1f0
-q=. (|._512<\p),<h
-r=. > sha1sum_process each/ q
-'0123456789abcdef' {~ _4 #.\ r
-)
-sha1sum_process=: 4 :0
-plus=. +&.((32#2)&#.)
-K=. ((32#2) #: 16b5a827999 16b6ed9eba1 16b8f1bbcdc 16bca62c1d6) {~ <.@%&20
-W=. (, [: , 1 |."#. _3 _8 _14 _16 ~:/@:{ ])^:64 x ]\~ _32
-'A B C D E'=. y=. _32[\,y
-for_t. i.80 do.
-  TEMP=. (5|.A) plus (t sha1sum_step B,C,D) plus E plus (W{~t) plus K t
-  E=. D
-  D=. C
-  C=. 30 |. B
-  B=. A
-  A=. TEMP
-end.
-,y plus A,B,C,D,:E
-)
-sha1sum_step=: 4 : 0
-'B C D'=. _32 ]\ y
-if. x < 20 do.
-  (B*C)+.D>B
-elseif. x < 40 do.
-  B~:C~:D
-elseif. x < 60 do.
-  (B*C)+.(B*D)+.C*D
-elseif. x < 80 do.
-  B~:C~:D
-end.
-)
-assert '48c98f7e5a6e736d790ab740dfc3f51a61abe2b5' -: sha1sum 'Rosetta Code'
 ws_onmessage=: 3 : 0
 logcmd y
 if. encoding=1 do.

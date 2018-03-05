@@ -5,12 +5,14 @@ coinsert 'jsocket'
 
 LogDir=: jpath '~temp/logs'
 LogLen=: 3
+ExitTimeout=: 0
 WaitTimeout=: 5000
 binchar=: (8$2)#:a.&i.
 charbin=: a. {~ #.
 jfe=: 0 0$15!:16
 intersect=: e. # [
 remLF=: }.~ [: - LF = {:
+sha1sum=: 1 & (128!:6)
 
 BASE64=: (a.{~ ,(a.i.'Aa') +/i.26),'0123456789+/'
 MaxRep=: 100
@@ -132,9 +134,19 @@ initrun''
 )
 initrun=: 3 : 0
 Waits=: (SK,sockets);'';''
+xtimeout=. ExitTimeout * 0=#sockets
+xtime=. 0
 loop=: 1
 while. loop do.
   r=. runcheck sdselect Waits,<WaitTimeout
+  if. 0=#;r do.
+    if. #xtimeout do.
+      xtime=. xtime + WaitTimeout
+      if. xtime >: xtimeout do. exit 0 return. end.
+      continue.
+    end.
+  end.
+  xtimeout=. 0
   remwait r
   if. SK e. 0 pick r do. accept'' end.
   s=. (sockets e. ~.;r)#servers
@@ -549,42 +561,6 @@ loguse=: 3 : 0
 log 'use';": (<. 0.5 + 1000 * t),#r
 r
 )
-sha1sum=: 3 : 0
-b=. ,(8#2) #: a.i.y
-p=. b,1,((512|-65+#b)#0),(64#2)#:#b
-h=. #: 16b67452301 16befcdab89 16b98badcfe 16b10325476 16bc3d2e1f0
-q=. (|._512<\p),<h
-r=. > sha1sum_process each/ q
-'0123456789abcdef' {~ _4 #.\ r
-)
-sha1sum_process=: 4 :0
-plus=. +&.((32#2)&#.)
-K=. ((32#2) #: 16b5a827999 16b6ed9eba1 16b8f1bbcdc 16bca62c1d6) {~ <.@%&20
-W=. (, [: , 1 |."#. _3 _8 _14 _16 ~:/@:{ ])^:64 x ]\~ _32
-'A B C D E'=. y=. _32[\,y
-for_t. i.80 do.
-  TEMP=. (5|.A) plus (t sha1sum_step B,C,D) plus E plus (W{~t) plus K t
-  E=. D
-  D=. C
-  C=. 30 |. B
-  B=. A
-  A=. TEMP
-end.
-,y plus A,B,C,D,:E
-)
-sha1sum_step=: 4 : 0
-'B C D'=. _32 ]\ y
-if. x < 20 do.
-  (B*C)+.D>B
-elseif. x < 40 do.
-  B~:C~:D
-elseif. x < 60 do.
-  (B*C)+.(B*D)+.C*D
-elseif. x < 80 do.
-  B~:C~:D
-end.
-)
-assert '48c98f7e5a6e736d790ab740dfc3f51a61abe2b5' -: sha1sum 'Rosetta Code'
 ws_onmessage=: 3 : 0
 logcmd y
 if. encoding=1 do.

@@ -28,7 +28,7 @@ x=. I. y e. b
 utf8 (a {~ b i. x { y) x } y
 )
 checkidletimes=: 3 : 0
-for_loc. sockets intersect conl 1 do.
+for_loc. servers intersect conl 1 do.
   checklastuse__loc''
 end.
 )
@@ -84,7 +84,7 @@ res=. BASE64 {~ #. _6 [\ , (8#2) #: a. i. y
 res, (0 2 1 i. 3 | # y) # '='
 )
 wsreset=: 3 : 0
-for_loc. sockets intersect conl 1 do.
+for_loc. servers intersect conl 1 do.
   destroy__loc''
 end.
 )
@@ -147,7 +147,7 @@ while. loop do.
     checkidletimes''
     continue.
   end.
-  wtime=. inito=. 0
+  inito=. 0
   remwait r
   if. SK e. 0 pick r do. accept'' end.
   s=. (sockets e. ~.;r)#servers
@@ -234,8 +234,10 @@ r=. 'HTTP/1.1 400 Bad Request',CRLF,'Content-length: ',":#b
 r,CRLF,'Connection: Closed',CRLF,CRLF,b
 )
 checklastuse=: 3 : 0
-if. IdleTimout do.
-  if. IdleTimeout < 1000 * (6!:1'') - lastuse do. disconnect'' end.
+if. IdleTimeout do.
+  if. IdleTimeout < 1000 * (6!:1'') - lastuse do.
+    if. JFE do. Destroy=: 1 else. disconnect'' end.
+  end.
 end.
 )
 clearbuffers=: 3 : 0
@@ -280,7 +282,7 @@ end.
 destroy=: 3 : 0
 if. JFE do.
   stopjfe''
-  startbase''
+  exit 0
 end.
 sdclose SC
 removeserver coname''
@@ -474,22 +476,18 @@ if. 0=#inputbuf do.
   logged=: 0
   ws_send '0',y
   clearread''
-  wtime=. 0
   while. -. Destroy do.
     addwait SC;'';''
-    if. wsselect'' do. wtime=. 0 continue. end.
-    if. -. readcheck'' do.
-      wtime=. wtime + WaitTimeout
-      if. (0 < IdleTimeout) *. wtime >: IdleTimeout do. exit 0 end. continue.
-    end.
-    wtime=. 0
+    if. wsselect'' do. lastuse=: 6!:1'' continue. end.
+    if. -. readcheck'' do. checklastuse'' continue. end.
+    lastuse=: 6!:1''
     if. dataopn > 2 do. readbasex dataopn;readdata continue. end.
     break.
   end.
   if. Destroy do.
     clearread''
     dbg 0
-    destroy'' return.
+    disconnect'' return.
   end.
   if. LF e. readdata do. inputbuf=: <;._2 readdata,LF end.
 end.

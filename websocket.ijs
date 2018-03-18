@@ -8,7 +8,6 @@ LogLen=: 3
 WaitTimeout=: 5000
 InitTimeout=: 0
 IdleTimeout=: 600000
-IdleTimeout=: 30000
 binchar=: (8$2)#:a.&i.
 charbin=: a. {~ #.
 jfe=: 0 0$15!:16

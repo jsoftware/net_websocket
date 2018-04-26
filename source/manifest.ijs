@@ -10,8 +10,6 @@ VERSION=: '1.0.6'
 
 RELEASE=: 'j807'
 
-FOLDER=: 'net/websocket'
-
 FILES=: 0 : 0
 client.ijs
 demo.css

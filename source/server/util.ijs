@@ -24,9 +24,10 @@ utf8 (a {~ b i. x { y) x } y
 )
 
 NB. =========================================================
-checkidletimes=: 3 : 0
+checktimes=: 3 : 0
 for_loc. servers intersect conl 1 do.
   checklastuse__loc''
+  checktermtime__loc''
 end.
 )
 

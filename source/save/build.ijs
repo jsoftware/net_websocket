@@ -18,7 +18,6 @@ f=: 3 : '(A,y) fcopynew P,y'
 
 f 'demo.css'
 f 'client.ijs'
-f 'manifest.ijs'
 f 'demo1/index.html'
 f 'demo2/index.html'
 f 'demo2/demo.js'

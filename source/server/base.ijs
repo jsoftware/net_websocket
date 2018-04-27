@@ -71,7 +71,7 @@ while. loop do.
   if. 0=#;r do.
     wtime=. wtime + WaitTimeout
     if. (0 < inito) *. wtime >: inito do. exit 0 return. end.
-    checkidletimes''
+    checktimes''
     continue.
   end.
   inito=. 0

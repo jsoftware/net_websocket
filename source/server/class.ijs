@@ -29,6 +29,15 @@ end.
 )
 
 NB. =========================================================
+checktermtime=: 3 : 0
+if. TermTimeout do.
+  if. TermTimeout < 1000 * (6!:1'') - connected do.
+    if. JFE do. Destroy=: 1 else. disconnect'' end.
+  end.
+end.
+)
+
+NB. =========================================================
 clearbuffers=: 3 : 0
 clearread clearwrite''
 )
@@ -68,7 +77,7 @@ clearbuffers''
 connect=: 0
 encoding=: 1
 lasterror=: ''
-lastuse=: 6!:1''
+connected=: lastuse=: 6!:1''
 addserver coname''
 try.
   doconnect''

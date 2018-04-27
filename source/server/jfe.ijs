@@ -24,7 +24,8 @@ if. 0=#inputbuf do.
   end.
   if. Destroy do.
     clearread''
-    dbg 0
+    13!:0 [ 0
+    log 'end';''
     disconnect'' return.
   end.
   if. LF e. readdata do. inputbuf=: <;._2 readdata,LF end.
@@ -64,6 +65,7 @@ NB. return 0=ok, 1=fail
 wsselect=: 3 : 0
 r=. runcheck sdselect Waits,<WaitTimeout
 remwait r
+checktermtime''
 if. SC e. 1 pick r do. writesock'' end.
 if. SC e. 0 pick r do. readsock'' else. 0 end.
 )

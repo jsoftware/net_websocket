@@ -3,10 +3,10 @@ NB. websocket manifest
 CAPTION=: 'Websocket server'
 
 DESCRIPTION=: 0 : 0
-This is websocket server which allows a web browser to make calls to J.
+This is a websocket server which allows a web browser to make calls to J.
 )
 
-VERSION=: '1.0.6'
+VERSION=: '1.0.7'
 
 RELEASE=: 'j807'
 

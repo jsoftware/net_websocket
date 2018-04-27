@@ -15,12 +15,14 @@ NB. WaitTimeout - socket select timeout. Other timeouts are checked after this r
 NB.
 NB. InitTimeout - if non-zero, exit J if no initial connection in given time
 NB.
-NB. IdleTimeout - if non-zero, exit session if no activity in given time
+NB. IdleTimeout - if non-zero, close connection if no activity in given time
 NB.
+NB. TermTimeout - if non-zero, close connection after given term
+
 NB. On IdleTimeout, a JFE session will exit J, otherwise only that connection will be closed
 NB. and the server will wait for new connections.
 
 WaitTimeout=: 5000
 InitTimeout=: 0
 IdleTimeout=: 600000
-IdleTimeout=: 30000 NB. !!! testing
+TermTimeout=: 0

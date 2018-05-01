@@ -30,5 +30,7 @@ f=: 3 : 'freads P,''demo3/'',y,''.js'''
 f=: 3 : 'freads P,''demo4/'',y,''.js'''
 (A,'demo4/demo.js') fwritenew~ ;f each ;: 'cube draw drag'
 
-hostcmd 'rsync -r --delete ',P,'demo3/codemirror/* ',A,'demo3/codemirror'
-hostcmd 'rsync -r --delete ',A,'* ',jpath '~addons/net/websocket'
+hostcmd=: [: 2!:0 '(' , ,&' || true)'
+
+hostcmd^:IFUNIX 'rsync -r --delete ',P,'demo3/codemirror/* ',A,'demo3/codemirror'
+hostcmd^:IFUNIX 'rsync -r --delete ',A,'* ',jpath '~addons/net/websocket'

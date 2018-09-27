@@ -101,7 +101,11 @@ codestroy''
 
 NB. =========================================================
 doconnect=: 3 : 0
-handshake''
+try.
+  handshake''
+catch.
+  (13!:12'')13!:8(13!:11'')   NB. shortcut the following lines
+end.
 if. JFE *. connect do. initjfe'' return. end.
 if. Destroy do. destroy'' return. end.
 addwait SC;'';''
@@ -271,7 +275,7 @@ end.
 NB. =========================================================
 NB. called on base server socket end wait
 runbase=: 3 : 0
-if. -. connect do. doconnect'' return. end.
+if. -. connect do. doconnect ::destroy'' return. end.
 lastuse=: 6!:1''
 'r w e'=. y
 if. SC e. r do. readbase'' end.

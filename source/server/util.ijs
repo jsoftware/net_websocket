@@ -26,8 +26,10 @@ utf8 (a {~ b i. x { y) x } y
 NB. =========================================================
 checktimes=: 3 : 0
 for_loc. servers intersect conl 1 do.
-  checklastuse__loc''
-  checktermtime__loc''
+  try.
+    checklastuse__loc''
+    checktermtime__loc''
+  catch. end.    NB. locale error
 end.
 )
 

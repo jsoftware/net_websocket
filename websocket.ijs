@@ -29,8 +29,10 @@ utf8 (a {~ b i. x { y) x } y
 )
 checktimes=: 3 : 0
 for_loc. servers intersect conl 1 do.
-  checklastuse__loc''
-  checktermtime__loc''
+  try.
+    checklastuse__loc''
+    checktermtime__loc''
+  catch. end.
 end.
 )
 cutval=: 3 : 0
@@ -297,7 +299,11 @@ removeserver coname''
 codestroy''
 )
 doconnect=: 3 : 0
-handshake''
+try.
+  handshake''
+catch.
+  (13!:12'')13!:8(13!:11'')
+end.
 if. JFE *. connect do. initjfe'' return. end.
 if. Destroy do. destroy'' return. end.
 addwait SC;'';''
@@ -433,7 +439,7 @@ else.
 end.
 )
 runbase=: 3 : 0
-if. -. connect do. doconnect'' return. end.
+if. -. connect do. doconnect ::destroy'' return. end.
 lastuse=: 6!:1''
 'r w e'=. y
 if. SC e. r do. readbase'' end.

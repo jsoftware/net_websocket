@@ -76,6 +76,7 @@ Destroy=: 0
 clearbuffers''
 connect=: 0
 encoding=: 1
+NextVar=: 0
 lasterror=: ''
 connected=: lastuse=: 6!:1''
 addserver coname''
@@ -288,11 +289,16 @@ NB. writesock
 NB. the data size should be no more than SNDLIM
 writesock=: 3 : 0
 if. #y do. senddata=: y end.
-if. 0=#senddata do. ws_send'' return. end.
+NB. if. 0=#senddata do. ws_send'' return. end.
+label_a1.
+if. 0=#senddata do. 0&ws_send'' end.
+if. 0=#senddata do. EMPTY return. end.
 'c n'=. senddata sdsend SC,0
 e=. sderror c
-if. e-:'EWOULDBLOCK' do.
-elseif. e-:'ECONNRESET' do.
+NB. if. e-:'EWOULDBLOCK' do.
+NB. elseif. e-:'ECONNRESET' do.
+if. e-:'EWOULDBLOCK' do. EMPTY return.
+elseif. e-:'ECONNRESET' do. EMPTY return.
 elseif. c=0 do.
   senddata=: n}.senddata
 elseif. do.
@@ -302,7 +308,9 @@ end.
 if. #senddata do.
   addwait '';SC;''
 else.
-  ws_send''
+NB.   ws_send''
+NB. check pending sendframe queue
+  goto_a1.
 end.
 EMPTY
 )
@@ -311,18 +319,31 @@ NB. =========================================================
 NB. ws_send v write new data to sendframe
 NB. sendframe is a boxed list of pending writes
 NB. each write is flag;text where flag=1 all, 0 part
+NB. x=0 suppress calling writesock again to prevent recursion
 ws_send=: 3 : 0
+1 ws_send y
+:
 if. #y do.
-  sendframe=: sendframe,<1;y
+  ('var_',":NextVar)=: y
+  sendframe=: sendframe,<1,NextVar,0
+  NextVar=: >:NextVar
 end.
 if. (#senddata) +. 0=#sendframe do. '' return. end.
-'flag dat'=. 0 pick sendframe
-if. SNDLIM<#dat do.
-  senddata=: (0,flag*encoding) makeframe SNDLIM{.dat
-  sendframe=: (<0;SNDLIM}.dat) 0} sendframe
+'flag vdat vpos'=. 0 pick sendframe
+NB. vdat: variable name
+NB. vpos: position offset
+dat=. ('var_',":vdat)~
+if. SNDLIM<vpos-~#dat do.
+  senddata=: (0,flag*encoding) makeframe SNDLIM{.vpos}.dat
+NB. update position offset
+  sendframe=: (<0,vdat,SNDLIM+vpos) 0} sendframe
 else.
-  senddata=: (1,flag*encoding) makeframe dat
+  senddata=: (1,flag*encoding) makeframe vpos}.dat
   sendframe=: }. sendframe
+NB. erase temp variable
+  4!:55 <'var_',":vdat
 end.
-writesock''
+NB. writesock''
+NB. do not call writesock if ws_send is called from writesock
+if. x do. writesock'' end.
 )

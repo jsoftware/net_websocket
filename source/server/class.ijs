@@ -190,7 +190,7 @@ case. 8 do.
   writesock 136 0{a.
   Destroy=: 1
 case. 9 do.
-  sendframe=: sendframe,<1 10 makeframe val
+  writesock 1 10 makeframe val
 end.
 )
 
